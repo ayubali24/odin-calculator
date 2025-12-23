@@ -38,3 +38,14 @@ function operate (operator, num1, num2) {
             break;
     }
 }
+
+const calculator = document.querySelector('#calculator-container');
+const display = document.querySelector('#display')
+let value;
+calculator.addEventListener('click', (e) => {
+    value = Number(e.target.textContent)
+    if (!(Number.isNaN(value))) {
+        console.log(e.target.textContent);
+        display.textContent = e.target.textContent;
+    }
+})
