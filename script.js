@@ -1,28 +1,26 @@
 'use strict';
 
-let operand1;
-let operand2;
-let operator;
 
 function add (num1, num2) {
-    return num1 + num2;
+    return Number(num1) + Number(num2);
 }
 
 function subtract (num1, num2) {
-    return num1 - num2;
+    return Number(num1) - Number(num2);
 }
 
 function multiply (num1, num2) {
-    return num1 * num2;
+    return Number(num1) * Number(num2);
 }
 
 function divide (num1, num2) {
-    return num1 / num2;
+    return Number(num1) / Number(num2);
 }
 
 function operate (operator, num1, num2) {
     switch (operator) {
         case "+":
+            console.log(num1, num2)
             return add (num1, num2);
             break;
         case "-":
@@ -39,10 +37,6 @@ function operate (operator, num1, num2) {
     }
 }
 
-// const calculatorObj = { 
-//     operators: { "+": (a, b) => a + b, "-": (a, b) => a - b, "*": (a, b) => a * b, "/": (a, b) => a / b }, operate(op) { return calculator.operators[op](calculator.firstValue, calculator.secondValue); } 
-// };
-
 const calculator = document.querySelector('#calculator-container');
 const display = document.querySelector('#display')
 display.textContent = 0;
@@ -51,40 +45,23 @@ let finalFirstValue;
 let initialSecondValue;
 let finalSecondValue;
 let currentValue;
+let operator;
 let evaluated = false;
 
-// for talking point in interviews, my first approach, before realizing this is getting too complicated
-// and had Chat GPT mentor/assist me in coming up with a new method
-
-// calculator.addEventListener('click', (e) => {
-//     if ((e.target.textContent === "+" || e.target.textContent === "-" || e.target.textContent === "*" || e.target.textContent === "/") && operator === undefined) {
-//         display.textContent += `${e.target.textContent}`;
-//         operator = `${e.target.textContent}`;
-//     } else if (e.target.tagName === "BUTTON" && operator === undefined && !Number.isNaN(Number((e.target.textContent)))) {
-//         initialFirstValue = initialFirstValue ? initialFirstValue + e.target.textContent : e.target.textContent;
-//         finalFirstValue = Number(initialFirstValue);
-//         display.textContent = finalFirstValue;        
+function displayBox (firstValue, operator, secondValue) {
     
-//     } else if (e.target.tagName === "BUTTON" && operator && !Number.isNaN(Number((e.target.textContent)))) {
-//         // secondValue = Number(e.target.textContent)
-//         initialSecondValue = initialSecondValue ? initialSecondValue + e.target.textContent : e.target.textContent;
-//         display.textContent += e.target.textContent;
-//         finalSecondValue = Number(initialSecondValue);
-        
-//     } else if (e.target.tagName === "BUTTON" && e.target.textContent === "=" && finalFirstValue !== undefined && finalSecondValue !== undefined && operator !== undefined) {    
-//         currentValue = operate(operator, finalFirstValue, finalSecondValue);
-//         display.textContent = currentValue;
-//         initialFirstValue = undefined
-//         finalFirstValue = currentValue;
-//         initialSecondValue = undefined;
-//         finalSecondValue = undefined;
-//         operator = undefined;   
-//         evaluated = true;     
-//     }
-//     else {
-//         return;
-//     }
-// })
+    if (firstValue !== undefined && operator !== undefined && secondValue !== undefined) {
+        display.textContent = `${firstValue}${operator}${secondValue}`
+    } else if (operator !== undefined) {
+        display.textContent = `${firstValue}${operator}`
+    } else {
+        if (firstValue === undefined) {
+            display.textContent = 0;
+        } else {
+            display.textContent = `${firstValue}`
+        }
+    }
+}
 
 calculator.addEventListener('click', (e) => {
    if (e.target.tagName !== 'BUTTON') {
@@ -97,7 +74,8 @@ calculator.addEventListener('click', (e) => {
         evaluated = false;
         initialFirstValue = e.target.textContent;
         finalFirstValue = Number(initialFirstValue);
-        display.textContent = finalFirstValue;
+        displayBox(finalFirstValue, operator, finalSecondValue);
+        // display.textContent = finalFirstValue;
         finalSecondValue = undefined;
         initialSecondValue = undefined;
         operator = undefined;
@@ -105,12 +83,11 @@ calculator.addEventListener('click', (e) => {
         if (operator === undefined) {
             initialFirstValue = initialFirstValue ? initialFirstValue + e.target.textContent : e.target.textContent;
             finalFirstValue = Number(initialFirstValue);
-            display.textContent = finalFirstValue;
+            displayBox(finalFirstValue, operator, finalSecondValue);
         } else {
-            console.log(initialSecondValue);
             initialSecondValue = initialSecondValue ? initialSecondValue + e.target.textContent : e.target.textContent;
             finalSecondValue = Number(initialSecondValue);
-            display.textContent += e.target.textContent;
+            displayBox(finalFirstValue, operator, finalSecondValue);
         }
     }
 
@@ -118,15 +95,18 @@ calculator.addEventListener('click', (e) => {
 
     if (e.target.textContent === "+" || e.target.textContent === "-" || e.target.textContent === "*" || e.target.textContent === "/") {
         evaluated = false;
- 
+
         if (finalFirstValue !== undefined && finalSecondValue === undefined) {
             if (operator === undefined) {
                 operator = e.target.textContent;
-                display.textContent += e.target.textContent;
+                // display.textContent += e.target.textContent;
+                displayBox(finalFirstValue, operator, finalSecondValue);
             } else {
                 const newDisplay = display.textContent.replace(operator, e.target.textContent)
-                display.textContent = newDisplay;
+                // display.textContent = newDisplay;
                 operator = e.target.textContent;
+                displayBox(finalFirstValue, operator, finalSecondValue);
+
             }
         }
 
@@ -134,6 +114,7 @@ calculator.addEventListener('click', (e) => {
             finalFirstValue = operate(operator, finalFirstValue, finalSecondValue);
             operator = e.target.textContent;
             display.textContent = finalFirstValue + operator;
+            // displayBox(finalFirstValue, operator, finalSecondValue);
             finalSecondValue = undefined;
             initialSecondValue = undefined;
         }
@@ -146,13 +127,62 @@ calculator.addEventListener('click', (e) => {
             evaluated = true;
             finalFirstValue = operate(operator, finalFirstValue, finalSecondValue);
             display.textContent = finalFirstValue;
+            // displayBox(finalFirstValue, operator, finalSecondValue);
+
             operator = undefined;
             initialSecondValue = undefined;
             finalSecondValue = undefined;
+            
         }
     }
 
     if (e.target.textContent === "AC") {
-
+        display.textContent = 0;
+        initialFirstValue = undefined;
+        finalFirstValue = undefined;
+        initialSecondValue = undefined;
+        finalSecondValue = undefined;
+        currentValue = undefined;
+        operator = undefined;
+        evaluated = false;
+        
     }
+
+    if (e.target.textContent === "←") {
+        if (display.textContent === "0") {
+            return;
+        }
+        if (finalFirstValue !== undefined && operator !== undefined && finalSecondValue !== undefined) {
+            finalSecondValue = Math.floor(finalSecondValue / 10);
+            if (finalSecondValue === 0) {
+                initialSecondValue = undefined;
+                finalSecondValue = undefined;
+                displayBox(finalFirstValue, operator, finalSecondValue)
+            } else {
+                displayBox(finalFirstValue, operator, finalSecondValue)
+            }
+        } else if (operator !== undefined) {
+            operator = undefined;
+            displayBox(finalFirstValue, operator, finalSecondValue)
+        } else {
+            finalFirstValue = Math.floor(finalFirstValue / 10);
+            if (finalFirstValue === 0) {
+                initialFirstValue = undefined;
+                finalFirstValue = undefined;
+                displayBox(finalFirstValue, operator, finalFirstValue)
+            } else {
+                displayBox(finalFirstValue, operator, finalFirstValue)
+            }
+
+        }
+    }
+
+    if (e.target.textContent === ".") {
+        if (initialFirstValue !== undefined) {
+            initialFirstValue += '.';
+            displayBox(initialFirstValue, operator, finalSecondValue);
+            // console.log(finalFirstValue + ".");
+        }
+    }
+
 })
